@@ -1,6 +1,4 @@
-
 import gmail_api as gmail
-
 
 def get_sinpes(service, labels):
     # Get messages with the label SINPES
@@ -14,7 +12,7 @@ def get_sinpes(service, labels):
         # TODO: add to Data Base
     return sinpes
 
-def confim_sinpe(service, msg_id, labels):
+def confirm_sinpe(service, msg_id, labels):
     gmail.add_label(service, labels["Confirmado"], msg_id)
 
 def main():
