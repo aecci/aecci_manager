@@ -1,12 +1,8 @@
 #! /bin/bash
-# Simple bash script to configur Proton VPN automatically
-# And share a second wired connection
+# Script para configurar Proton VPN y compartir internet por alguna conexión utilizando
+# esta VPN
 
-
-# TODO: agregar verificación de estar ya logeado o no
-# sudo apt-get install expect -y
-
-# Usa expecta que es un programa para interactuar con programas interactivos
+# Usa expect que es un programa para interactuar con programas interactivos
 if ! command -v expect &> /dev/null
 then echo "Installando programa expect..."
     sudo apt-get update
@@ -15,7 +11,7 @@ else
     echo "Dependecia encontrada"
 fi
 
-# Se utiliza el cli que provee Proton VPN para configurar la VPN
+# Se utiliza el CLI que provee Proton VPN para configurar la VPN
 if ! command -v protonvpn-cli &> /dev/null
 then
     echo "Installando programa protonvpn-cli..."
@@ -31,35 +27,41 @@ else
     echo "Dependecia encontrada"
 fi
 
-# Usuario ya definido de la AECCI en Proton VPN
-user=aecci_ucr
-
-login_output=$(protonvpn-cli connect)
 # Verifica si ya se inicio sesión
-if [[ "$login_output" == *"No session was found. Please login first.
-"* ]]; then
-    echo "Sesión ya iniciada en Proton VPN"
-else
-  # Leer input de usuario
-  # s: no mostrar input
-  # p: impirmir mensaje antes del input
-  read -sp "Ingrese la contraseña de Proton VPN: " password
 
-  # Iniciá sesión
-  ./login_protonvpn.sh $user $password
+./login_protonvpn.sh
+if [ $? -eq 0 ]; then
+  echo -e "\nContinuando con la configuración..."
+else
+    exit 1
 fi
 
-disconnect_output=$(protonvpn-cli disconnect)
-# Verificar si está desconectado
-if [[ "$disconnect_output" == *"Attempting to disconnect from Proton VPN. No Proton VPN connection was found. Please connect first to a Proton VPN server."* ]]; then
-  echo "Reconectando VPN..."
-    protonvpn-cli disconnect -y
-    protonvpn-cli netshield --ads-malware
-    protonvpn-cli connect --cc ES
-else
-  echo "Conectando VPN..."
-    protonvpn-cli netshield --ads-malware
-    protonvpn-cli connect --cc ES
+echo -e "\nVerificando conexión con ProtonVPN"
+protonvpn-cli disconnect &> /dev/null
+protonvpn-cli netshield --ads-malware &> /dev/null
+protonvpn-cli connect --cc ES &> /dev/null
+
+output=$(nmcli -t -f NAME,TYPE con show | awk -F '[:\n]' '{ printf "%s\n", $1}')
+# Guarda todas las conexiónes en un arreglo
+readarray -t connections <<<"$output"
+
+# Muestra todas las conexiónes enumeradas
+echo "\nConexiónes disponibles"
+for i in "${!connections[@]}"; do
+    echo "$i. ${connections[$i]}"
+done
+
+echo -e "\nDeberia ser una conexión llamada [Wired connection 2]"
+read -p "Elige el numero de la conexión por la cuál compartir internet: " selection
+
+# Valida la selección del usuario
+if ! [[ $selection =~ ^[0-9]+$ ]] || (( selection < 0 || selection >= ${#connections[@]} )); then
+    echo "Selección invalida"
+    exit 1
 fi
 
-# nmcli -p connection modify "Wired connection 1" ipv4.method shared
+selected_connection=${connections[$selection]}
+# Use the selected connection
+nmcli -p connection modify "$selected_connection" ipv4.method shared &> /dev/null
+echo "Ahora se está compartiendo internet con VPN a la conexión $selected_connection"
+# echo "Sharing connection $selected_connection"
