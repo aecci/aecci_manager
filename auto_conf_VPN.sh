@@ -2,7 +2,7 @@
 # Script para configurar Proton VPN y compartir internet por alguna conexión utilizando
 # esta VPN
 
-default_connection="Wired connection 2"
+default_connection="Wired connection 1"
 
 # Usa expect que es un programa para interactuar con programas interactivos
 if ! command -v expect &> /dev/null
@@ -45,7 +45,7 @@ protonvpn-cli connect --cc ES &> /dev/null
 
 if [ -n "$default_connection" ]; then
     # Usar la conexión por defecto
-    nmcli -p connection modify "$selected_connection" ipv4.method shared &> /dev/null
+    nmcli -p connection modify "$default_connection" ipv4.method shared &> /dev/null
     echo "Ahora se está compartiendo internet con VPN a la conexión $default_connection"
   else
     output=$(nmcli -t -f NAME,TYPE con show | awk -F '[:\n]' '{ printf "%s\n", $1}')
