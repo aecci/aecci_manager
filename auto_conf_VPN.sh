@@ -2,7 +2,7 @@
 # Script para configurar Proton VPN y compartir internet por alguna conexión utilizando
 # esta VPN
 
-default_connection="Wired connection 1"
+default_connection="Wired connection 2"
 
 # Usa expect que es un programa para interactuar con programas interactivos
 if ! command -v expect &> /dev/null
