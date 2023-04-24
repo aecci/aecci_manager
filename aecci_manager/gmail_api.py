@@ -79,16 +79,17 @@ def get_msg_with_label(service, label):
         sinpes = []
         # Get messages with the label SINPES
         # WARN: limit of messages set to 7
-        messages = service.users().messages().list(userId='me', labelIds=label, maxResults=7).execute()
+        messages = service.users().messages().list(userId='me', labelIds=label).execute()
 
-        if not messages:
-            print(f"No hay mensajes con la etiqueta {label}")
+        if not messages["resultSizeEstimate"]:
+            print(f"No hay mensajes con la etiqueta.")
             return []
-        # TODO: improve velocity with parallelism
-        for msg in messages["messages"]:
-            data = get_msg_data(service, msg["id"])
-            sinpes.append(data)
-        return sinpes
+        else:
+            # TODO: improve velocity with parallelism
+            for msg in messages["messages"]:
+                data = get_msg_data(service, msg["id"])
+                sinpes.append(data)
+            return sinpes
 
     except HttpError as error:
         print(f"Se produjo un error: {error}")

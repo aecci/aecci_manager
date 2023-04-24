@@ -40,7 +40,7 @@ fi
 
 echo -e "\nVerificando conexión con ProtonVPN"
 protonvpn-cli disconnect &> /dev/null
-protonvpn-cli netshield --ads-malware &> /dev/null
+# protonvpn-cli netshield --ads-malware &> /dev/null
 protonvpn-cli connect --cc ES &> /dev/null
 
 if [ -n "$default_connection" ]; then
@@ -72,4 +72,4 @@ if [ -n "$default_connection" ]; then
     nmcli -p connection modify "$selected_connection" ipv4.method shared &> /dev/null
     echo "Ahora se está compartiendo internet con VPN a la conexión $selected_connection"
 fi
-
+unset ALL_PROXY

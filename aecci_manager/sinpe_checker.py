@@ -8,7 +8,7 @@ def get_sinpes(service, labels):
     for msg in sinpes:
         gmail.add_label(service, labels["SINPES/Recibido"], msg[3])
         # WARN: need to remove SINPES label to avoid replicated entries
-        # remove_label(service, labels["SINPES"], msg["id"])
+        gmail.remove_label(service, labels["SINPES"], msg[3])
         # TODO: add to Data Base
     return sinpes
 
@@ -21,7 +21,7 @@ def main():
     # Getting useful labels
     labels = gmail.get_labels(service, ["SINPES", "SINPES/Recibido", "SINPES/Confirmado"])
     sinpes = get_sinpes(service, labels)
-    for sinpe in sinpes:
+    for sinpe in reversed(sinpes):
         print("SINPE----------------------------------------------")
         print(sinpe[0])
         print(sinpe[1])
