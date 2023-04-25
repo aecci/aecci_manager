@@ -78,8 +78,7 @@ def get_msg_with_label(service, label):
     try:
         sinpes = []
         # Get messages with the label SINPES
-        # WARN: limit of messages set to 7
-        messages = service.users().messages().list(userId='me', labelIds=label).execute()
+        messages = service.users().messages().list(userId='me', labelIds=label, maxResults=7).execute()
 
         if not messages["resultSizeEstimate"]:
             print(f"No hay mensajes con la etiqueta.")
