@@ -1,33 +1,30 @@
 #!/usr/bin/expect -f
 
 log_user 0
-set username "aecci_ucr"
+set password_prompt "Enter your ProtonVPN OpenVPN password:"
+set confirm_prompt "Confirm your ProtonVPN OpenVPN password:"
 
-# Ejecuta el programa para comenzar con el incio de sesión
-spawn protonvpn-cli login $username
+spawn protonvpn init
+expect "Enter your ProtonVPN OpenVPN username:"
+send "aecci_ucr\r"
 
-expect {
-  "Enter your Proton VPN password: " {
-    stty -echo
-    send_user "Ingrese la contraseña para ProtonVPN: "
-    expect_user -re "(.*)\n"
-    set password $expect_out(1,string)
-    stty echo
-    send "$password\r"
-  }
-  "You are already logged in." {
-    puts "Sesión ya iniciada."
-    exit 0
-  }
-  default {
-    puts "Hubo un error a la hora de iniciar sesión. Intentelo de nuevo."
-    exit 1
-  }
-}
+# Solicitar y guardar la contraseña del usuario
+send_user "Enter your ProtonVPN OpenVPN password: "
+stty -echo
+expect_user -re "(.*)\n"
+set password $expect_out(1,string)
+stty echo
+send "\r"
 
-expect {
-  "Incorrect login credentials. Please try again" {
-    puts "\nContraseña incorrecta. Intentelo de nuevo."
-    exit 1
-  }
-}
+expect $password_prompt
+send "$password\r"
+
+expect $confirm_prompt
+send "$password\r"
+
+expect "Your plan:"
+send "2\r"
+expect "Choose the default OpenVPN protocol."
+send "1\r"
+expect "Is this information correct? [Y/n]:"
+send "Y\r"
