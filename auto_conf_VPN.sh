@@ -17,14 +17,11 @@ fi
 if ! command -v protonvpn-cli &> /dev/null
 then
     echo "Installando programa protonvpn-cli..."
-    # Descarga el paquete
-    wget https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_1.0.3_all.deb
+    # Descarga dependencias
+    sudo apt install openvpn dialog python3-pip python3-setuptools
     # Lo instala
-    sudo apt-get install ./protonvpn-stable-release_1.0.3_all.deb
-    # Elimina el paquete una ves instalado
-    rm protonvpn-stable-release_1.0.3_all.deb
+    sudo pip3 install protonvpn-cli
     sudo apt-get update
-    sudo apt-get install protonvpn-cli -y
 else
     echo "Dependecia encontrada"
 fi
@@ -39,9 +36,9 @@ else
 fi
 
 echo -e "\nVerificando conexión con ProtonVPN"
-protonvpn-cli disconnect &> /dev/null
+sudo protonvpn disconnect &> /dev/null
 # protonvpn-cli netshield --ads-malware &> /dev/null
-protonvpn-cli connect --cc ES &> /dev/null
+sudo protonvpn connect --cc ES &> /dev/null
 
 if [ -n "$default_connection" ]; then
     # Usar la conexión por defecto
