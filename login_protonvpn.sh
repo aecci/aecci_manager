@@ -1,12 +1,6 @@
 #!/usr/bin/expect -f
 
-log_user 0
-set password_prompt "Enter your ProtonVPN OpenVPN password:"
-set confirm_prompt "Confirm your ProtonVPN OpenVPN password:"
-
-spawn protonvpn init
-expect "Enter your ProtonVPN OpenVPN username:"
-send "aecci_ucr\r"
+set username "aecci_ucr"
 
 # Solicitar y guardar la contraseña del usuario
 send_user "Enter your ProtonVPN OpenVPN password: "
@@ -16,15 +10,28 @@ set password $expect_out(1,string)
 stty echo
 send "\r"
 
-expect $password_prompt
+spawn sudo protonvpn init
+expect "Enter your ProtonVPN OpenVPN username:"
+send "$username\r"
+
+expect "Enter your ProtonVPN OpenVPN password:"
 send "$password\r"
 
-expect $confirm_prompt
+expect "Confirm your ProtonVPN OpenVPN password:"
 send "$password\r"
 
 expect "Your plan:"
 send "2\r"
 expect "Choose the default OpenVPN protocol."
 send "1\r"
-expect "Is this information correct? [Y/n]:"
+
 send "Y\r"
+
+expect "Writing configuration to disk..."
+
+expect {
+    "Please make sure your connection is working properly!" {
+        send_user "\nError: There was an error connecting to the ProtonVPN API. Please make sure your connection is working properly.\n"
+        exit 1
+    }
+}

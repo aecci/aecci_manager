@@ -14,7 +14,7 @@ else
 fi
 
 # Se utiliza el CLI que provee Proton VPN para configurar la VPN
-if ! command -v protonvpn-cli &> /dev/null
+if ! command -v protonvpn &> /dev/null
 then
     echo "Installando programa protonvpn-cli..."
     # Descarga dependencias
@@ -28,7 +28,7 @@ fi
 
 # Verifica si ya se inicio sesión
 
-./login_protonvpn.sh
+sudo ./login_protonvpn.sh
 if [ $? -eq 0 ]; then
   echo -e "\nContinuando con la configuración..."
 else
