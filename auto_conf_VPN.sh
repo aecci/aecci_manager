@@ -13,32 +13,27 @@ else
     echo "Dependecia encontrada"
 fi
 
-# Se utiliza el CLI que provee Proton VPN para configurar la VPN
+# Se utiliza OpenVPN para establecer conexión con ProtonVPN
 if ! command -v protonvpn &> /dev/null
 then
     echo "Installando programa protonvpn-cli..."
     # Descarga dependencias
-    sudo apt install openvpn dialog python3-pip python3-setuptools
-    # Lo instala
-    sudo pip3 install protonvpn-cli
+    sudo apt install openvpn
+    # Installando archivo de configuracion para ProtonVPN
+    sudo wget -O /etc/openvpn/update-resolv-conf.sh  "https://raw.githubusercontent.com/ProtonVPN/scripts/master/update-resolv-conf.sh"
+    sudo chmod +x /etc/openvpn/update-resolv-conf.sh
     sudo apt-get update
 else
     echo "Dependecia encontrada"
 fi
 
-# Verifica si ya se inicio sesión
 
-sudo ./login_protonvpn.sh
+sudo openvpn ./us-free-09.protonvpn.net.udp.ovpn
 if [ $? -eq 0 ]; then
   echo -e "\nContinuando con la configuración..."
 else
     exit 1
 fi
-
-echo -e "\nVerificando conexión con ProtonVPN"
-sudo protonvpn disconnect &> /dev/null
-# protonvpn-cli netshield --ads-malware &> /dev/null
-sudo protonvpn connect --cc ES &> /dev/null
 
 if [ -n "$default_connection" ]; then
     # Usar la conexión por defecto
