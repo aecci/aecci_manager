@@ -14,7 +14,7 @@ else
 fi
 
 # Se utiliza OpenVPN para establecer conexión con ProtonVPN
-if ! command -v protonvpn &> /dev/null
+if ! command -v openvpn &> /dev/null
 then
     echo "Installando programa protonvpn-cli..."
     # Descarga dependencias
@@ -26,13 +26,12 @@ then
 else
     echo "Dependecia encontrada"
 fi
-
-
-sudo openvpn ./us-free-09.protonvpn.net.udp.ovpn
-if [ $? -eq 0 ]; then
-  echo -e "\nContinuando con la configuración..."
+if [ -d "/etc/openvpn/update-resolv-conf.sh" ]; then
+    # Installando archivo de configuracion para ProtonVPN
+    sudo wget -O /etc/openvpn/update-resolv-conf.sh  "https://raw.githubusercontent.com/ProtonVPN/scripts/master/update-resolv-conf.sh"
+    sudo chmod +x /etc/openvpn/update-resolv-conf.sh
 else
-    exit 1
+    echo "Configuracion para OpenVPN existe"
 fi
 
 if [ -n "$default_connection" ]; then
@@ -64,4 +63,25 @@ if [ -n "$default_connection" ]; then
     nmcli -p connection modify "$selected_connection" ipv4.method shared &> /dev/null
     echo "Ahora se está compartiendo internet con VPN a la conexión $selected_connection"
 fi
-unset ALL_PROXY
+
+
+# Function to be executed on Ctrl+C
+cleanup() {
+    echo "OpenVPN connection terminated. Cleaning up..."
+    echo "Reiniciando configuración de network"
+    nmcli network off
+    nmcli network on
+    exit 1  # Exit the script
+}
+
+# Trap Ctrl+C and execute the cleanup function
+trap cleanup INT
+
+echo "Conectando a OpenVPN"
+sudo openvpn --config ./us-free-09.protonvpn.net.udp.ovpn --auth-user-pass ./credentials.txt
+
+# Capture the PID of the OpenVPN process
+openvpn_pid=$!
+
+# Wait for the OpenVPN process to finish
+wait $openvpn_pid
