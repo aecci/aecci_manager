@@ -67,6 +67,7 @@ fi
 
 # Function to be executed on Ctrl+C
 cleanup() {
+    clear
     echo "Reiniciando configuración de network"
     nmcli network off
     nmcli network on
@@ -77,7 +78,7 @@ cleanup() {
 trap cleanup INT
 
 echo "Conectando a OpenVPN"
-sudo openvpn --config ./us-free-09.protonvpn.net.udp.ovpn --auth-user-pass ./credentials.txt
+sudo openvpn --config ./node-cr-02.protonvpn.net.udp.ovpn --auth-user-pass ./credentials.txt
 
 # Capture the PID of the OpenVPN process
 openvpn_pid=$!
