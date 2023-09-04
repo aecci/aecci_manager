@@ -67,11 +67,10 @@ fi
 
 # Function to be executed on Ctrl+C
 cleanup() {
-    echo "OpenVPN connection terminated. Cleaning up..."
     echo "Reiniciando configuración de network"
     nmcli network off
     nmcli network on
-    exit 1  # Exit the script
+    exit 0  # Exit the script
 }
 
 # Trap Ctrl+C and execute the cleanup function
